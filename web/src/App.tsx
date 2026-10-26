@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion'
 import * as THREE from 'three'
@@ -8,7 +8,8 @@ import Resume from './ui/Resume'
 import Works from './ui/Works'
 import LoadingScreen from './ui/LoadingScreen'
 import { useStore } from './store'
-import { LANGS, dirOf, type Lang } from './i18n'
+import { dirOf, type Lang } from './i18n'
+import Closing from './ui/Closing'
 
 function Backdrop() {
   // 点击空白处收起详情
@@ -23,25 +24,12 @@ function Backdrop() {
 
 const COPY: Record<Lang, { title: string; paragraphs: string[]; cue: string }> = {
   ar: {
-    title: 'عن سِن',
+    title: 'أبو الحسن عبدالهادي',
     paragraphs: [
-      'أنا سِن — تقنيّ مبدع أعيش حيث يلتقي الكود بالفن. أقضي أيامي بين البرمجة والإبداع والتفاعل المرح والتصميم وأعمال الرسوم الحاسوبية (CG). أحب دراسة المهارات من مجالات مختلفة والجمع بينها — لأبتكر وأستكشف المزيد من الإمكانيات.',
+      'أبحث عن الثغرات قبل أن يجدها غيري، وأبني حلولًا تتجاوز حدود الممكن.',
+      'من فكرة بسيطة إلى نظام متكامل، ومن سطر شيفرة إلى مشروع يصنع فرقًا؛ أؤمن بأن البرمجة ليست مجرد كتابة أوامر، بل فنّ تحويل الأفكار إلى واقع، وبناء أنظمة تجمع بين الأداء والابتكار والأمان.',
     ],
     cue: 'مرّر للأسفل',
-  },
-  en: {
-    title: 'About Sen',
-    paragraphs: [
-      "I'm Sen — a creative technologist living where code meets art. I spend my days around coding, creativity, playful interaction & design, and CG work. I love studying and combining skills across different fields — to create, and to explore more possibilities.",
-    ],
-    cue: 'SCROLL',
-  },
-  zh: {
-    title: 'About Sen',
-    paragraphs: [
-      '我是 Sen——一个游走在代码与艺术之间的创意技术人。我常年和 Coding、创意、有趣的交互 & 设计、CG 创作等打交道，喜欢研究并组合不同领域的技能，来创造并探索更多可能性。',
-    ],
-    cue: '向下滚动',
   },
 }
 
@@ -76,7 +64,7 @@ function Hero({ lang, cueOpacity }: { lang: Lang; cueOpacity: MotionValue<number
             {title}
           </motion.h1>
           {paragraphs.map((p, i) => (
-            <motion.p key={i} className="about-body" style={{ y: bodyY }}>
+            <motion.p key={i} className={i === 0 ? 'about-body about-lead' : 'about-body'} style={{ y: bodyY }}>
               {p}
             </motion.p>
           ))}
@@ -92,27 +80,19 @@ function Hero({ lang, cueOpacity }: { lang: Lang; cueOpacity: MotionValue<number
   )
 }
 
-// 切换按钮显示「下一个」语言
-const LANG_LABEL: Record<Lang, string> = { ar: 'عربي', en: 'EN', zh: '中文' }
-const nextLang = (l: Lang) => LANGS[(LANGS.indexOf(l) + 1) % LANGS.length]
-
-function LangToggle({ lang, onToggle }: { lang: Lang; onToggle: () => void }) {
-  return (
-    <button className="lang-toggle" onClick={onToggle} aria-label="تغيير اللغة / Switch language">
-      {LANG_LABEL[nextLang(lang)]}
-    </button>
-  )
-}
-
 // 首屏角标文案
-const CHROME: Record<Lang, { name: string; role: string; year: string; motto: string; base: string }> = {
-  ar: { name: 'سِن جنغ · Sen Zheng', role: 'تقنيّ مبدع', year: 'معرض الأعمال — 2026', motto: 'كود · فن · لعب', base: 'مقيم في شينزين' },
-  en: { name: 'Sen Zheng 郑越升', role: 'Creative Technologist', year: 'Portfolio — 2026', motto: 'Code · Art · Play', base: 'Based in Shenzhen' },
-  zh: { name: 'Sen Zheng 郑越升', role: 'Creative Technologist', year: 'Portfolio — 2026', motto: 'Code · Art · Play', base: 'Based in Shenzhen' },
+const CHROME: Record<Lang, { name: string; role: string; since: string; motto: string; base: string }> = {
+  ar: {
+    name: 'Abu Al-Hassan Abdulhadi',
+    role: 'مبرمج ومختص في الأمن السيبراني',
+    since: 'أكتب الشيفرة منذ 2017',
+    motto: 'ويب · بوتات تيليغرام · أمن سيبراني',
+    base: 'ميسان، العراق',
+  },
 }
 
 export default function App() {
-  const [lang, setLang] = useState<Lang>('ar')
+  const lang: Lang = 'ar'
   useEffect(() => {
     document.documentElement.lang = lang
     document.title = COPY[lang].title
@@ -184,11 +164,14 @@ export default function App() {
         aria-hidden="true"
       /> */}
 
-      {/* 语言切换：默认阿拉伯语，依次 عربي → EN → 中文 */}
-      <LangToggle lang={lang} onToggle={() => setLang(nextLang)} />
 
       {/* 首屏装饰：发丝内框 + 四角定位标 + 角标元数据（随滚动淡出） */}
-      <motion.div className="hero-chrome" style={{ opacity: heroChromeOpacity }} aria-hidden="true">
+      <motion.div
+        className="hero-chrome"
+        dir={dirOf(lang)}
+        style={{ opacity: heroChromeOpacity }}
+        aria-hidden="true"
+      >
         <div className="hero-frame" />
         <span className="hero-mark tl">+</span>
         <span className="hero-mark tr">+</span>
@@ -198,7 +181,7 @@ export default function App() {
           <span className="hm-name">{chrome.name}</span>
           <span>{chrome.role}</span>
         </div>
-        <div className="hero-meta hm-tr">{chrome.year}</div>
+        <div className="hero-meta hm-tr">{chrome.since}</div>
         <div className="hero-meta hm-bl">{chrome.motto}</div>
         <div className="hero-meta hm-right">{chrome.base}</div>
       </motion.div>
@@ -211,6 +194,7 @@ export default function App() {
         <Hero lang={lang} cueOpacity={cueOpacity} />
         <Resume lang={lang} />
         <Works lang={lang} innerRef={worksRef} />
+        <Closing lang={lang} />
       </main>
     </>
   )

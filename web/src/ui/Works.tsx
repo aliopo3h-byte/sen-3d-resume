@@ -12,6 +12,16 @@ const EASE = [0.22, 1, 0.36, 1]
 // 极简清单的一行：作品名靠左、数据(播放量/标签)靠右、发丝线分隔；整行可点开全屏详情
 function WorkLine({ item, onOpen }: { item: WorkListItem; onOpen: (item: WorkListItem) => void }) {
   const hasMeta = item.meta || (item.tags && item.tags.length)
+  // 无 slug / link：纯展示的要点，不可点开详情
+  if (!item.slug && !item.link) {
+    return (
+      <li className="wk-line">
+        <span className="wk-line-btn is-static">
+          <span className="wk-line-name">{item.name}</span>
+        </span>
+      </li>
+    )
+  }
   return (
     <li className="wk-line">
       <button className="wk-line-btn" onClick={() => onOpen(item)}>
