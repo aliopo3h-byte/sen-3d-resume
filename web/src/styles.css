@@ -1619,3 +1619,14 @@ canvas {
   border-left: none;
   border-right: 2px solid rgba(255, 217, 179, 0.5);
 }
+
+/* 窄屏 RTL：时间轴 min(480px,90vw) 比 .resume 内容区宽，会溢出左缘；
+   RTL 下文字在左侧，会被裁切 —— 改为撑满内容区 */
+@media (max-width: 640px) {
+  .resume[dir='rtl'] .resume-title,
+  .resume[dir='rtl'] .timeline {
+    width: auto;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
