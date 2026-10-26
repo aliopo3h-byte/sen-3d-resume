@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion'
 import * as THREE from 'three'
@@ -8,6 +8,7 @@ import Resume from './ui/Resume'
 import Works from './ui/Works'
 import LoadingScreen from './ui/LoadingScreen'
 import { useStore } from './store'
+import { LANGS, dirOf, type Lang } from './i18n'
 
 function Backdrop() {
   // 点击空白处收起详情
@@ -20,25 +21,32 @@ function Backdrop() {
   )
 }
 
-type Lang = 'en' | 'zh'
-
-const COPY = {
+const COPY: Record<Lang, { title: string; paragraphs: string[]; cue: string }> = {
+  ar: {
+    title: 'عن سِن',
+    paragraphs: [
+      'أنا سِن — تقنيّ مبدع أعيش حيث يلتقي الكود بالفن. أقضي أيامي بين البرمجة والإبداع والتفاعل المرح والتصميم وأعمال الرسوم الحاسوبية (CG). أحب دراسة المهارات من مجالات مختلفة والجمع بينها — لأبتكر وأستكشف المزيد من الإمكانيات.',
+    ],
+    cue: 'مرّر للأسفل',
+  },
   en: {
     title: 'About Sen',
     paragraphs: [
       "I'm Sen — a creative technologist living where code meets art. I spend my days around coding, creativity, playful interaction & design, and CG work. I love studying and combining skills across different fields — to create, and to explore more possibilities.",
     ],
+    cue: 'SCROLL',
   },
   zh: {
     title: 'About Sen',
     paragraphs: [
       '我是 Sen——一个游走在代码与艺术之间的创意技术人。我常年和 Coding、创意、有趣的交互 & 设计、CG 创作等打交道，喜欢研究并组合不同领域的技能，来创造并探索更多可能性。',
     ],
+    cue: '向下滚动',
   },
 }
 
 function Hero({ lang, cueOpacity }: { lang: Lang; cueOpacity: MotionValue<number> }) {
-  const { title, paragraphs } = COPY[lang]
+  const { title, paragraphs, cue } = COPY[lang]
   const aboutRef = useRef(null)
   // 触发起点提前：about 顶部位于视口 60% 处即开始（offset[0] 进度 0），到达顶部为进度 1
   const { scrollYProgress } = useScroll({
@@ -58,6 +66,7 @@ function Hero({ lang, cueOpacity }: { lang: Lang; cueOpacity: MotionValue<number
       <motion.div
         className="about"
         lang={lang}
+        dir={dirOf(lang)}
         ref={aboutRef}
         style={{ filter: blur, opacity }}
       >
@@ -74,7 +83,7 @@ function Hero({ lang, cueOpacity }: { lang: Lang; cueOpacity: MotionValue<number
         </div>
       </motion.div>
       <motion.div className="scroll-cue" style={{ opacity: cueOpacity }} aria-hidden="true">
-        <span className="scroll-cue-label">{lang === 'en' ? 'SCROLL' : '向下滚动'}</span>
+        <span className="scroll-cue-label">{cue}</span>
         <span className="scroll-cue-track">
           <span className="scroll-cue-dot" />
         </span>
@@ -83,16 +92,32 @@ function Hero({ lang, cueOpacity }: { lang: Lang; cueOpacity: MotionValue<number
   )
 }
 
+// 切换按钮显示「下一个」语言
+const LANG_LABEL: Record<Lang, string> = { ar: 'عربي', en: 'EN', zh: '中文' }
+const nextLang = (l: Lang) => LANGS[(LANGS.indexOf(l) + 1) % LANGS.length]
+
 function LangToggle({ lang, onToggle }: { lang: Lang; onToggle: () => void }) {
   return (
-    <button className="lang-toggle" onClick={onToggle} aria-label="切换语言 / Switch language">
-      {lang === 'en' ? '中文' : 'EN'}
+    <button className="lang-toggle" onClick={onToggle} aria-label="تغيير اللغة / Switch language">
+      {LANG_LABEL[nextLang(lang)]}
     </button>
   )
 }
 
+// 首屏角标文案
+const CHROME: Record<Lang, { name: string; role: string; year: string; motto: string; base: string }> = {
+  ar: { name: 'سِن جنغ · Sen Zheng', role: 'تقنيّ مبدع', year: 'معرض الأعمال — 2026', motto: 'كود · فن · لعب', base: 'مقيم في شينزين' },
+  en: { name: 'Sen Zheng 郑越升', role: 'Creative Technologist', year: 'Portfolio — 2026', motto: 'Code · Art · Play', base: 'Based in Shenzhen' },
+  zh: { name: 'Sen Zheng 郑越升', role: 'Creative Technologist', year: 'Portfolio — 2026', motto: 'Code · Art · Play', base: 'Based in Shenzhen' },
+}
+
 export default function App() {
-  const [lang, setLang] = useState<Lang>('zh')
+  const [lang, setLang] = useState<Lang>('ar')
+  useEffect(() => {
+    document.documentElement.lang = lang
+    document.title = COPY[lang].title
+  }, [lang])
+  const chrome = CHROME[lang]
   const { scrollY } = useScroll()
   // 作品区蒙层：以作品区顶部从视口底进入到视口中部的进度，驱动 3D 渐暗 + 模糊
   const worksRef = useRef(null)
@@ -159,8 +184,8 @@ export default function App() {
         aria-hidden="true"
       /> */}
 
-      {/* 中英切换暂时隐藏，默认中文 */}
-      {/* <LangToggle lang={lang} onToggle={() => setLang((l) => (l === 'en' ? 'zh' : 'en'))} /> */}
+      {/* 语言切换：默认阿拉伯语，依次 عربي → EN → 中文 */}
+      <LangToggle lang={lang} onToggle={() => setLang(nextLang)} />
 
       {/* 首屏装饰：发丝内框 + 四角定位标 + 角标元数据（随滚动淡出） */}
       <motion.div className="hero-chrome" style={{ opacity: heroChromeOpacity }} aria-hidden="true">
@@ -170,12 +195,12 @@ export default function App() {
         <span className="hero-mark bl">+</span>
         <span className="hero-mark br">+</span>
         <div className="hero-meta hm-tl">
-          <span className="hm-name">Sen Zheng 郑越升</span>
-          <span>Creative Technologist</span>
+          <span className="hm-name">{chrome.name}</span>
+          <span>{chrome.role}</span>
         </div>
-        <div className="hero-meta hm-tr">Portfolio — 2026</div>
-        <div className="hero-meta hm-bl">Code · Art · Play</div>
-        <div className="hero-meta hm-right">Based in Shenzhen</div>
+        <div className="hero-meta hm-tr">{chrome.year}</div>
+        <div className="hero-meta hm-bl">{chrome.motto}</div>
+        <div className="hero-meta hm-right">{chrome.base}</div>
       </motion.div>
 
       {/* 全屏胶片噪点蒙层（multiply 混合） */}

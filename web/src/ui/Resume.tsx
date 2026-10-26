@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { ZooopLogo } from './ZooopLogo'
 import { SOCIAL_ICONS } from './SocialIcons'
 import { FOCUS_POINTS } from '../data/focusPoints'
+import { dirOf, type Lang } from '../i18n'
 
 const SOCIAL_LINKS = [
   {
@@ -21,7 +22,7 @@ const SOCIAL_LINKS = [
   },
 ]
 
-// 履历数据（双语）。英文为译稿，可按需润色。
+// 履历数据（多语言：ar / en / zh）。英文为译稿，可按需润色。
 interface ResumeGroup {
   heading?: string
   logo?: string
@@ -39,7 +40,57 @@ interface ResumeEntry {
   points?: string[]
   groups?: ResumeGroup[]
 }
-const RESUME: Record<'en' | 'zh', { title: string; entries: ResumeEntry[] }> = {
+const RESUME: Record<Lang, { title: string; entries: ResumeEntry[] }> = {
+  ar: {
+    title: 'السيرة الذاتية',
+    entries: [
+      {
+        period: '2013 – 2017',
+        place: 'جامعة صن يات-سين',
+        role: 'بكالوريوس هندسة البرمجيات',
+      },
+      {
+        period: '2017 – 2020',
+        place: 'استوديو HOTSAR · شنغهاي',
+        role: 'شريك مؤسس',
+        logo: { src: `${import.meta.env.BASE_URL}images/hotsar.jpg`, alt: 'HOTSAR' },
+        points: [
+          'شريك مؤسس · فريق من أكثر من 20 شخصًا',
+          'العملاء: علامات مجموعة علي بابا، تينسنت، NetEase، DiDi، China Resources، ماكدونالدز…',
+          'المهام: التطوير / الإدارة الإبداعية / الرسوم المتحركة / إدارة الفريق',
+        ],
+      },
+      {
+        period: '2020 – 2025',
+        place: 'استوديو Bad Printer · شينزين',
+        role: 'المؤسس',
+        logo: { src: `${import.meta.env.BASE_URL}images/bp.png`, alt: 'Bad Printer Studio' },
+        points: [
+          'المؤسس · فريق من 14 شخصًا',
+          'العملاء: Honor of Kings / Trip.com / ByteDance / Kuaishou / VIVO / Tecno / Xiaomi / IM Motors…',
+          'المهام: إدارة الفريق / الإدارة الإبداعية / الرسوم المتحركة / التطوير',
+        ],
+      },
+      {
+        period: '2025 – الآن',
+        place: 'صانع محتوى',
+        groups: [
+          {
+            heading: '小郑还挺忙',
+            logoImg: `${import.meta.env.BASE_URL}images/buzyzheng.png`,
+            sub: 'صانع محتوى تقني (اصنعها بنفسك)',
+            items: ['120 ألف على Douyin · 87 ألف على Bilibili · 23 ألف على Xiaohongshu'],
+            links: SOCIAL_LINKS,
+          },
+        ],
+      },
+      {
+        period: '2026 – الآن',
+        place: 'مطوّر مستقل',
+        groups: [{ logo: 'zooop', sub: 'منصة إبداع بالذكاء الاصطناعي', link: 'https://zooop.ai/' }],
+      },
+    ],
+  },
   en: {
     title: 'Résumé',
     entries: [
@@ -263,10 +314,10 @@ function Entry({ entry, index }: { entry: ResumeEntry; index: number }) {
   )
 }
 
-export default function Resume({ lang }: { lang: 'en' | 'zh' }) {
+export default function Resume({ lang }: { lang: Lang }) {
   const data = RESUME[lang]
   return (
-    <section className="resume" lang={lang}>
+    <section className="resume" lang={lang} dir={dirOf(lang)}>
       <motion.h2
         className="resume-title"
         initial={{ opacity: 0, y: 20 }}

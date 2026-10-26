@@ -1,4 +1,4 @@
-// 作品集数据（双语）。5 大板块 → 点击展开作品详情。
+// 作品集数据（多语言：ar / en / zh）。5 大板块 → 点击展开作品详情。
 // 纯数据驱动：增删板块 / 作品只改本文件，Works.jsx 仅负责渲染。
 //
 // 板块字段：
@@ -38,6 +38,7 @@ export interface WorkSection {
 }
 
 export interface WorksLang {
+  dir?: 'rtl' | 'ltr'
   title: string
   closeLabel: string
   openLabel: string
@@ -51,7 +52,83 @@ export interface WorksLang {
   sections: WorkSection[]
 }
 
-export const WORKS: Record<'zh' | 'en', WorksLang> = {
+export const WORKS: Record<'ar' | 'zh' | 'en', WorksLang> = {
+  ar: {
+    title: 'الأعمال',
+    closeLabel: 'رجوع',
+    openLabel: 'استكشف',
+    hint: 'تابع التمرير',
+    awardsLabel: 'الجوائز',
+    visitLabel: 'زيارة الموقع',
+    detailPlaceholder: 'وصف عملك',
+    phImageLabel: 'صورة / فيديو',
+    phButtonLabel: 'زر الرابط',
+    countLabel: (n) => `${n} أعمال`,
+    sections: [
+      {
+        id: 'ad',
+        no: '01',
+        title: 'مشاريع إعلانية',
+        tagline: 'HOTSAR · Bad Printer',
+        items: [
+          { name: 'مَن يعزف على القُتشين؟', meta: 'مشروع تفاعلي', slug: 'guqin' },
+          { name: 'ليانخه زاوباو · آلة زمن الحرم الجامعي', meta: 'مشروع تفاعلي', slug: 'time-machine' },
+          { name: 'مجموعة الرسوم المتحركة', meta: 'رسوم متحركة', slug: 'animation-collection' },
+          { name: 'أعمال أخرى', slug: 'other-works' },
+        ],
+        awards: ['جائزة Tiger Roar', 'FWA', 'Awwwards'],
+      },
+      {
+        id: 'maker',
+        no: '02',
+        title: 'صناعة المحتوى',
+        tagline: '230 ألف متابع',
+        items: [
+          {
+            name: '«حوّلت الجدار الزجاجي للاستوديو إلى جهاز ألعاب»',
+            meta: '17 مليون مشاهدة',
+            tags: ['مختارات Bilibili الأسبوعية', 'الأكثر رواجًا على Bilibili'],
+            slug: 'glass-wall-arcade',
+          },
+          {
+            name: '«كتبت كودًا داخل ملابس كلبي»',
+            meta: '9 ملايين مشاهدة',
+            tags: ['الأكثر رواجًا على Weibo / Douyin / Bilibili'],
+            slug: 'dog-code-clothes',
+          },
+          {
+            name: '«كبّرت جهاز Switch عشر مرات وحوّلته إلى بيت ذكي للقطط»',
+            meta: '5 ملايين مشاهدة',
+            tags: ['مختارات Bilibili الأسبوعية'],
+            slug: 'switch-cat-house',
+          },
+          { name: '«تزوّجنا داخل لعبة فاميكوم من الثمانينيات!!»', slug: 'retro-game-wedding' },
+        ],
+        footer: 'التقنيات: نمذجة ثلاثية الأبعاد · طباعة ثلاثية الأبعاد · تصميم PCB · أنظمة مدمجة · تطوير برمجيات · موشن جرافيك',
+      },
+      {
+        id: 'product',
+        no: '03',
+        title: 'المنتجات',
+        tagline: 'ZOOOP',
+        items: [
+          { name: 'ZOOOP', meta: 'منصة إبداع أصيلة بالذكاء الاصطناعي', link: 'https://zooop.ai/', slug: 'zooop' },
+        ],
+      },
+      {
+        id: 'graphics',
+        no: '04',
+        title: 'مشاريع جانبية',
+        tagline: 'Raymarching · WebGL · Blender',
+        items: [
+          { name: 'Raymarching', slug: 'raymarching' },
+          { name: 'WebGL', slug: 'webgl' },
+          { name: 'Blender', slug: 'blender' },
+          { name: 'مشاريع جانبية أخرى', slug: 'other-side-works' },
+        ],
+      },
+    ],
+  },
   zh: {
     title: 'Works',
     closeLabel: '返回',
